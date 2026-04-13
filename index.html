@@ -95,7 +95,7 @@
             type: "input", 
             required: true 
         },
-        { id: "7.", text: "기타 사서들에게 하고 싶은 말을 전달해 주세요.<br><small style='color:var(--text-sub)'>공란으로 두어도 제출 가능합니다.</small>", placeholder: "", type: "textarea", required: false }
+        { id: "7.", text: "기타 사서들에게 하고 싶은 말을 전달해 주세요. <br><small style='color:var(--text-sub)'>공란으로 두어도 제출 가능합니다.</small>", placeholder: "", type: "textarea", required: false }
     ];
 
     let currentIdx = 0;
@@ -164,7 +164,7 @@
     function submitData() {
         const nextBtn = document.getElementById('next-btn');
         nextBtn.disabled = true;
-        nextBtn.innerText = "기록을 저장 중입니다...";
+        nextBtn.innerText = "기록을 저장 중입니다⋯⋯";
 
         fetch(SCRIPT_URL, {
             method: 'POST',
