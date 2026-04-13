@@ -64,7 +64,7 @@
 </div>
 
 <script>
-    // 사용자님이 주신 웹 앱 URL과 밴드 초대장 링크
+    // 밴드 초대 링크와 시트 연결 URL을 확실하게 박아두었습니다.
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzhjvb9QK9hbVmNi096NVxiegNwF1MBieS_KZfdEnSKCGmWQ3l_he7ITUKvhWYz8Fyq/exec"; 
     const FINAL_REDIRECT = "https://band.us/n/a3acbc407fwcU";
 
@@ -166,22 +166,19 @@
         nextBtn.disabled = true;
         nextBtn.innerText = "기록을 저장 중입니다...";
 
-        // JSON 형식으로 Google Apps Script에 전송
         fetch(SCRIPT_URL, {
             method: 'POST',
-            mode: 'no-cors', // CORS 정책 우회
+            mode: 'no-cors',
             body: JSON.stringify(userAnswers),
             headers: { 'Content-Type': 'application/json' }
         })
         .then(() => {
-            // 전송 성공 시 밴드 링크로 이동
+            // 이제 'your-invitation-link'가 아닌 실제 밴드 주소로 이동합니다.
             location.href = FINAL_REDIRECT;
         })
         .catch(err => {
-            console.error(err);
-            alert("기록 저장 중 오류가 발생했습니다. 다시 시도해 주세요.");
+            alert("기록 저장 중 오류가 발생했습니다.");
             nextBtn.disabled = false;
-            nextBtn.innerText = "저장 내용을 불러옵니다.";
         });
     }
 
@@ -200,13 +197,8 @@
         } else {
             document.getElementById('quiz-section').classList.add('hidden');
             document.getElementById('intro-section').classList.remove('hidden');
-            document.getElementById('progress').style.width = "0%";
         }
     }
-
-    document.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && QUESTIONS[currentIdx].type === 'input') handleNext();
-    });
 </script>
 
 </body>
