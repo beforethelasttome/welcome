@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STORY IS OVER CONTINUE?</title>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+    <link href="https://fonts.googleapis.com/css2?family=KoPub+Batang:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #7B9BFF;
+            --bg-blue: #F4F7FF;
+            --text-main: #1F2937;
+            --text-sub: #6B7280;
+            --error: #FF5A5A;
+            --font-serif: 'KoPub Batang', serif;
+            --font-sans: 'Pretendard', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-sans); background-color: var(--bg-blue);
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; margin: 0; padding: 20px; color: var(--text-main);
+        }
+
+        .progress-bar-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 5px; background: #E5E7EB; z-index: 100;
+        }
+        #progress { width: 0%; height: 100%; background: var(--primary-blue); transition: width 0.3s; }
+
+        .card {
+            background: #FFFFFF; padding: 60px 40px; border-radius: 30px;
+            box-shadow: 0 15px 35px rgba(123, 155, 255, 0.1);
+            max-width: 550px; width: 100%; text-align: center;
+            transition: all 0.4s ease;
+        }
+
+        .intro-sub-text { font-size: 14px; color: var(--text-sub); margin-bottom: 10px; line-height: 1.6; word-break: keep-all; }
+        .intro-main-title { 
+            font-family: var(--font-serif); font-size: 42px; font-weight: 700; 
+            color: var(--primary-blue); line-height: 1.2; letter-spacing: -1px; margin-bottom: 40px;
+        }
+
+        .q-id { font-family: var(--font-serif); font-size: 26px; font-weight: 700; color: var(--primary-blue); margin-bottom: 15px; }
+        .content-area { font-size: 16px; line-height: 1.8; margin-bottom: 35px; word-break: keep-all; }
+
+        .input-group { margin-bottom: 10px; text-align: left; position: relative; }
+        input, textarea {
+            width: 100%; padding: 18px; border: 2px solid #E5E7EB; border-radius: 15px;
+            font-size: 16px; outline: none; transition: 0.2s; box-sizing: border-box; font-family: var(--font-sans);
+        }
+        textarea { height: 180px; resize: none; }
+        
+        input.error, textarea.error { border-color: var(--error); background-color: #FFF5F5; animation: shake 0.4s; }
+        .error-message { 
+            color: var(--error); font-size: 13px; margin-top: 8px; margin-left: 5px;
+            min-height: 18px; font-weight: 500; display: none;
+        }
+
+        .btn-group { display: flex; flex-direction: column; gap: 12px; align-items: center; margin-top: 25px; }
+        .btn {
+            background: var(--primary-blue); color: white; border: none; padding: 18px 45px;
+            border-radius: 40px; font-size: 17px; font-weight: 600; cursor: pointer;
+            width: 100%; transition: 0.2s; box-shadow: 0 8px 15px rgba(123, 155, 255, 0.25);
+        }
+        .btn:hover { opacity: 0.9; transform: translateY(-2px); }
+        .btn-prev { background: transparent; color: #ADB5BD; box-shadow: none; width: auto; font-size: 14px; padding: 10px 25px; margin-top: 10px; }
+
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="progress-bar-container"><div id="progress"></div></div>
+
+<div class="card">
+    <div id="intro-section">
+        <p class="intro-sub-text">
+            도서관에 재방문해 주신 모든 분들께 진심으로 감사드립니다.<br>
+            본 설문은 원활한 Beyond the LAST TOME (PART. 2)를 위해 마련되었으며,<br>
+            모든 설문이 완료되면 초대장 링크로 이동합니다.
+        </p>
+        <h1 class="intro-main-title">STORY IS OVER<br>CONTINUE?</h1>
+        <div class="btn-group">
+            <button class="btn" onclick="startQuiz()">YES</button>
+        </div>
+    </div>
+
+    <div id="quiz-section" class="hidden">
+        <div class="q-id" id="display-id">0.</div>
+        <div class="content-area" id="display-text">내용</div>
+        
+        <div class="input-group">
+            <div id="input-container"></div>
+            <div id="error-msg" class="error-message">주요 인물이 아닙니다. 다시 입력해 주세요.</div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn" id="next-btn" onclick="handleNext()">기록하기</button>
+            <button class="btn btn-prev" id="prev-btn" onclick="handlePrev()">이전으로</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const QUESTIONS = [
+        { id: "0.", text: "먼저, 본인의 트위터 아이디를 기입해 주세요.", placeholder: "ex. @1FTNKUNU", type: "input", answers: [], required: true },
+        { 
+            id: "1.", 
+            text: "신원 확인을 시작합니다.<br>주요 인물의 본명(풀네임)을 기입해 주세요.<br><small style='color:var(--text-sub)'>가명 혹은 애칭은 괄호로 구분해 주세요.</small>", 
+            placeholder: "ex. 신운제 (운제띠니)", 
+            type: "input", 
+            answers: ["하루키", "라울", "권은수", "한도혁", "아키라", "렌", "윤아선", "유안", "유", "안", "므르쉐", "케노비", "늘솔길", "에이사", "홀리스", "이반", "마티아", "이청춘", "일주", "한이레", "도미닉", "일라이", "윤정혁", "강 설", "강", "설", "버티", "령", "진", "제유영", "레온", "리온", "다니엘", "에반", "유해솔", "오우진", "그레디", "이믿음", "이제"], 
+            required: true 
+        },
+        { id: "2.", text: "주요 인물의 나이를 기입해 주세요.", placeholder: "ex. 29", type: "input", answers: [], required: true },
+        { id: "3.", text: "신장을 기입해 주세요.<br><small style='color:var(--text-sub)'>애매한 수치 대신 정확한 수치를 지향합니다.</small>", placeholder: "ex. 180cm, 70kg", type: "input", answers: [], required: true },
+        { id: "4.", text: "Beyond the LAST TOME (PART. 1)에서 제출하였던 가장 좋아하는 이야기를 기입해 주세요.<br><small style='color:var(--text-sub)'>기억이 나지 않는다면 생략하셔도 괜찮습니다.</small>", placeholder: "ex. 인어공주", type: "input", answers: [], required: true },
+        { 
+            id: "5.", 
+            text: "Beyond the LAST TOME (PART. 1)의 개인 서사를 간단하게 요약해 주세요.<br><small style='color:var(--text-sub)'>필수 입력 항목이며, 간단하게라도 기입하시면 더욱 만족스러운 러닝이 되실 수 있습니다.</small>", 
+            placeholder: "ex 1: 도서관에 오류를 퍼뜨려서 혼란을 만들었음. 그리고 힘이 약해진 도서관의 코어를 부숴서 탈출하려고 시도함. 근데 실패함! 젠장.\nex 2: 문장 두 개를 바쳤다. 주인공을 했다. 잘했다. 대화를 나누던 ??과 같이 나가서 떡볶이 좀 먹자고 했다.", 
+            type: "textarea", 
+            answers: [], 
+            required: true 
+        },
+        { 
+            id: "6.", 
+            text: "모든 주요 인물은 도합 20 의 스탯을 가지고 있습니다. 해당 스탯을 [체력], [근력], [민첩], [기억]에 따라 나누어 주세요.<br>스탯의 최소치와 최대치는 없으며, 스탯의 총합이 20 이 아니어도 괜찮습니다.<br>스탯의 자세한 설명 및 기능은 밴드 가입 승인 후 안내되며 추후 수정할 수 있으니 편하게 가안으로 작성 부탁드립니다.", 
+            placeholder: "ex. 체력 3, 근력 4, 민첩 7, 기억 0", 
+            type: "input", 
+            answers: [], 
+            required: true 
+        },
+        { id: "7.", text: "기타 사서들에게 하고 싶은 말을 전달해 주세요.<br><small style='color:var(--text-sub)'>공란으로 두어도 제출 가능합니다.</small>", placeholder: "", type: "textarea", answers: [], required: false }
+    ];
+
+    let currentIdx = 0;
+    const FINAL_REDIRECT = "https://your-invitation-link.com"; 
+
+    function startQuiz() {
+        document.getElementById('intro-section').classList.add('hidden');
+        document.getElementById('quiz-section').classList.remove('hidden');
+        updateView();
+    }
+
+    function updateView() {
+        const q = QUESTIONS[currentIdx];
+        document.getElementById('display-id').innerText = q.id;
+        document.getElementById('display-text').innerHTML = q.text;
+        const container = document.getElementById('input-container');
+        container.innerHTML = "";
+        
+        const inputEl = document.createElement(q.type === 'textarea' ? 'textarea' : 'input');
+        inputEl.id = "answer-field";
+        inputEl.placeholder = q.placeholder;
+        if (q.type === 'input') inputEl.type = "text";
+        container.appendChild(inputEl);
+
+        const nextBtn = document.getElementById('next-btn');
+        nextBtn.innerText = (currentIdx === QUESTIONS.length - 1) ? "저장 내용을 불러옵니다." : "기록하기";
+        document.getElementById('error-msg').style.display = 'none';
+        document.getElementById('progress').style.width = ((currentIdx + 1) / QUESTIONS.length) * 100 + "%";
+        inputEl.focus();
+    }
+
+    function handleNext() {
+        const inputEl = document.getElementById('answer-field');
+        const errorEl = document.getElementById('error-msg');
+        const val = inputEl.value.trim();
+        const q = QUESTIONS[currentIdx];
+
+        inputEl.classList.remove('error');
+        errorEl.style.display = 'none';
+
+        if (q.required && !val) {
+            showError(inputEl, "내용을 입력해 주세요.");
+            return;
+        }
+
+        if (q.answers.length > 0) {
+            const isCorrect = q.answers.some(ans => val.replace(/\s+/g, '').includes(ans.replace(/\s+/g, '')));
+            if (!isCorrect) {
+                inputEl.value = "";
+                showError(inputEl, "주요 인물이 아닙니다. 다시 입력해 주세요.");
+                return;
+            }
+        }
+
+        if (currentIdx < QUESTIONS.length - 1) {
+            currentIdx++;
+            updateView();
+        } else {
+            document.getElementById('display-text').innerText = "기록을 저장 중입니다...";
+            setTimeout(() => { location.href = FINAL_REDIRECT; }, 1000);
+        }
+    }
+
+    function showError(el, msg) {
+        el.classList.add('error');
+        const errorEl = document.getElementById('error-msg');
+        errorEl.innerText = msg;
+        errorEl.style.display = 'block';
+        setTimeout(() => el.classList.remove('error'), 400);
+    }
+
+    function handlePrev() {
+        if (currentIdx > 0) { currentIdx--; updateView(); }
+        else { 
+            document.getElementById('quiz-section').classList.add('hidden'); 
+            document.getElementById('intro-section').classList.remove('hidden'); 
+            document.getElementById('progress').style.width = "0%";
+        }
+    }
+
+    document.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && QUESTIONS[currentIdx].type === 'input') handleNext();
+    });
+</script>
+
+</body>
+</html>
